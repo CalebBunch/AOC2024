@@ -102,6 +102,81 @@ int part1(vector<string> a) {
     return s;
 }
 
+int part2(vector<string> a) {
+    bool counts = true;
+    int i = 0;
+    int s = 0;
+    while (i < a.size() - 7) {
+        bool flag = true;
+        bool founddo = true;
+        bool founddont = true;
+        if (a[i] == "d") {
+            for (int j = 1; j < 5; j++) {
+                if (j == 1 && a[i + j] != "o") {
+                    founddont = false;
+                    break;
+                } else {
+                    founddo = true;
+                }
+                if (j == 2 && a[i + j] != "n") {
+                    founddont = false;
+                    break;
+                } 
+                if (j == 3 && a[i + j] != "'") {
+                    founddont = false;
+                    break;
+                }
+                if (j == 4 && a[i + j] != "t") {
+                    founddont = false;
+                    break;
+                }
+            }
+            if (founddont) {
+                counts = false;
+            } else if (founddo) {
+                counts = true;
+            }
+        }
+        else if (a[i] == "m") {
+            for (int j = 1; j < 8; j++) {
+                if (j == 1 && a[i + j] != "u") {
+                    flag = false;
+                    break;
+                }
+                if (j == 2 && a[i + j] != "l") {
+                    flag = false;
+                    break;
+                }
+                if (j == 3 && a[i + j] != "(") {
+                    flag = false;
+                    break;
+                }
+                if (j == 4 && !isnumber(a[i + j])) {
+                    flag = false;
+                    break;
+                }
+                if (j == 5 && a[i + j] != ",") {
+                    flag = false;
+                    break;
+                }
+                if (j == 6 && !isnumber(a[i + j])) {
+                    flag = false;
+                    break;
+                }
+                if (j == 7 && a[i + j] != ")") {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag && counts) {
+                s += (stoi(a[i + 4]) * stoi(a[i + 6]));
+            }
+        }
+        i++;
+    }
+    return s;
+}
+
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
@@ -122,6 +197,7 @@ int main() {
     }
 
     cout << "Part 1: " << part1(combineNumbers(d)) << endl;
+    cout << "Part 2: " << part2(combineNumbers(d)) << endl;
 
     return 0;
 }
