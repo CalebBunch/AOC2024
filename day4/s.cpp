@@ -110,8 +110,8 @@ int helper2(int row, int col, vector<vector<char>> &a) {
         return 0;
     }
 
-    bool cond1 = ( (tl == 'M' || tl == 'S') && (br == 'M' || br == 'S') && tl != br );
-    bool cond2 = ( (tr == 'M' || tr == 'S') && (bl == 'M' || bl == 'S') && tr != bl );
+    bool cond1 = ((tl == 'M' || tl == 'S') && (br == 'M' || br == 'S') && tl != br);
+    bool cond2 = ((tr == 'M' || tr == 'S') && (bl == 'M' || bl == 'S') && tr != bl);
     
     if (cond1 && cond2) {
         return 1; 
