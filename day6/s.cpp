@@ -33,14 +33,13 @@ bool inBounds(int r, int c, int aRow, int aCol) {
     return r >= 0 && r < aRow && c >= 0 && c < aCol;
 }
 
-pair<vector<pair<int, int>>, int> simulate(vector<vector<char>>& a, int i, int r, int c, bool part2) {
+pair<set<pair<int, int>>, int> simulate(vector<vector<char>>& a, int i, int r, int c, bool part2) {
     pair<int, int> dirs[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
     int dirIdx = i;
     int row = r;
     int col = c;
     int cnt = 0;
     set<pair<int, int>> seen;
-    vector<pair<int, int>> path;
     while (inBounds(row, col, a.size(), a[0].size())) {
         if (a[row][col] == '#') {
             row -= dirs[dirIdx].first;
@@ -53,11 +52,10 @@ pair<vector<pair<int, int>>, int> simulate(vector<vector<char>>& a, int i, int r
         } else if (part2) {
             cnt++;
         }
-        path.push_back(make_pair(row, col));
         row += dirs[dirIdx].first;
         col += dirs[dirIdx].second;
     }
-    return make_pair(path, cnt);
+    return make_pair(seen, cnt);
 }
 
 int part1(vector<vector<char>>& a) {
@@ -76,12 +74,12 @@ int part1(vector<vector<char>>& a) {
 int helper2(vector<vector<char>>& a, int oDir, int r, int c) {
     pair<int, int> dirs[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
     int cnt = 0;
-    pair<vector<pair<int, int>>, int> res = simulate(a, oDir, r, c, true);
+    pair<set<pair<int, int>>, int> res = simulate(a, oDir, r, c, true);
     int oPathLen = res.second;
-    vector<pair<int, int>> path = res.first;
+    set<pair<int, int>> path = res.first;
     for (int i = 0; i < a.size(); i++) {
         for (int j = 0; j < a[i].size(); j++) {
-            if (a[i][j] != '#' && a[i][j] != '^') {
+            if (a[i][j] != '#' && a[i][j] != '^' && path.find(make_pair(i, j)) != path.end()) {
                 a[i][j] = '#';
                 int sr = r;
                 int sc = c;
