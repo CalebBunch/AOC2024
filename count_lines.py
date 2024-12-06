@@ -29,8 +29,8 @@ def main() -> None:
             min_val = v
             min_key = k
 
-    print(f"Largest file: {max_key} - {max_val}\n{'-' * 50}")
-    print(f"Smallest file: {min_key} - {min_val}\n{'-' * 50}")
+    print(f"Largest file: {max_key} - {max_val} lines\n{'-' * 50}")
+    print(f"Smallest file: {min_key} - {min_val} lines\n{'-' * 50}")
 
 if __name__ == "__main__":
     main()
