@@ -94,9 +94,9 @@ int helper2(vector<vector<char>>& a, int oDir, int r, int c) {
                     sr += dirs[sd].first;
                     sc += dirs[sd].second;
                     cPathLen++;
-                    // this constant (250) probably only works for my input
+                    // this constant (250) might only work for my input
                     // increasing it will increase the chances of a correct result for all inputs
-                    // this is a bad way to check for infinite loops
+                    // this is a bad (but fast) way to check for infinite loops
                     if (cPathLen > oPathLen + 250) {
                         cnt++;
                         break;
