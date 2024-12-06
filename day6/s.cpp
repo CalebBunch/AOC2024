@@ -103,7 +103,6 @@ int helper2(vector<vector<char>>& a, int oDir, int r, int c) {
                         cnt++;
                         break;
                     }
-                    
                 }
                 a[i][j] = '.';
             }
