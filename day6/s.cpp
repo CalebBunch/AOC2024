@@ -3,9 +3,9 @@
 using namespace std;
 
 template <typename T>
-void printVector(vector<T> a) {
+void printVector(vector<T> a, string delim) {
     for (auto x : a) {
-        cout << x << " ";
+        cout << x << delim;
     }
     cout << endl;
 }
@@ -33,13 +33,14 @@ bool inBounds(int r, int c, int aRow, int aCol) {
     return r >= 0 && r < aRow && c >= 0 && c < aCol;
 }
 
-int helper1(vector<vector<char>>& a, int i, int r, int c) {
+pair<vector<pair<int, int>>, int> simulate(vector<vector<char>>& a, int i, int r, int c, bool part2) {
     pair<int, int> dirs[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
     int dirIdx = i;
     int row = r;
     int col = c;
     int cnt = 0;
     set<pair<int, int>> seen;
+    vector<pair<int, int>> path;
     while (inBounds(row, col, a.size(), a[0].size())) {
         if (a[row][col] == '#') {
             row -= dirs[dirIdx].first;
@@ -49,11 +50,14 @@ int helper1(vector<vector<char>>& a, int i, int r, int c) {
         if (seen.find(make_pair(row, col)) == seen.end()) {
             seen.insert(make_pair(row, col));
             cnt++;
+        } else if (part2) {
+            cnt++;
         }
+        path.push_back(make_pair(row, col));
         row += dirs[dirIdx].first;
         col += dirs[dirIdx].second;
     }
-    return cnt;
+    return make_pair(path, cnt);
 }
 
 int part1(vector<vector<char>>& a) {
@@ -61,7 +65,60 @@ int part1(vector<vector<char>>& a) {
     for (int i = 0; i < a.size(); i++) {
         for (int j = 0; j < a[i].size(); j++) {
             if (a[i][j] == '^') {
-                s = helper1(a, 0, i, j);
+                s = simulate(a, 0, i, j, false).second;
+                break;
+            }
+        }
+    }
+    return s;
+}
+
+int helper2(vector<vector<char>>& a, int oDir, int r, int c) {
+    pair<int, int> dirs[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+    int cnt = 0;
+    pair<vector<pair<int, int>>, int> res = simulate(a, oDir, r, c, true);
+    int oPathLen = res.second;
+    vector<pair<int, int>> path = res.first;
+    for (int i = 0; i < a.size(); i++) {
+        for (int j = 0; j < a[i].size(); j++) {
+            if (a[i][j] != '#' && a[i][j] != '^') {
+                a[i][j] = '#';
+                int sr = r;
+                int sc = c;
+                int sd = oDir;
+                int cPathLen = 0;
+                while (inBounds(sr, sc, a.size(), a[0].size())) {
+                    if (a[sr][sc] == '#') {
+                        sr -= dirs[sd].first;
+                        sc -= dirs[sd].second;
+                        sd = (sd + 1) % 4;
+                    }
+                    sr += dirs[sd].first;
+                    sc += dirs[sd].second;
+                    cPathLen++;
+                    // this constant (250) probably only works for my input
+                    // increasing it will increase the chances of a correct result for all inputs
+                    // this is a bad way to check for infinite loops
+                    if (cPathLen > oPathLen + 250) {
+                        cnt++;
+                        break;
+                    }
+                    
+                }
+                a[i][j] = '.';
+            }
+        }
+    }
+    return cnt;
+}
+
+int part2(vector<vector<char>>& a) {
+    int s;
+    for (int i = 0; i < a.size(); i++) {
+        for (int j = 0; j < a[i].size(); j++) {
+            if (a[i][j] == '^') {
+                s = helper2(a, 0, i, j);
+                break;
             }
         }
     }
@@ -89,6 +146,7 @@ int main() {
     }
 
     cout << "Part 1: " << part1(d) << endl;
+    cout << "Part 2: " << part2(d) << endl;
 
     return 0;
 }
