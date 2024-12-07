@@ -29,7 +29,7 @@ vector<string> splitString(string str, char splitter) {
     return result;
 }
 
-long long apply_operations(vector<long long>& nums, string ops) {
+long long apply_operations1(vector<long long>& nums, string ops) {
     long long res = nums[0];
     for (int i = 1; i < nums.size(); i++) {
         if (ops[i - 1] == '+') {
@@ -41,7 +41,7 @@ long long apply_operations(vector<long long>& nums, string ops) {
     return res;
 }
 
-long long combinations(long long k, vector<long long>& s) {
+long long combinations1(long long k, vector<long long>& s) {
     for (int i = 0; i < pow(2, s.size() - 1); i++) {
         string ops = "";
         for (int j = 0; j < s.size() - 1; j++) {
@@ -51,7 +51,7 @@ long long combinations(long long k, vector<long long>& s) {
                 ops.push_back('*');
             }
         }
-        if (apply_operations(s, ops) == k) {
+        if (apply_operations1(s, ops) == k) {
             return k;
         }
     }
@@ -61,7 +61,67 @@ long long combinations(long long k, vector<long long>& s) {
 long long part1(map<long long, vector<long long>>& m) {
     long long s = 0;
     for (auto& p: m) {
-        s += combinations(p.first, p.second);
+        s += combinations1(p.first, p.second);
+    }
+    return s;
+}
+
+long long base3(long long n) {
+    if (n == 0) {
+        return 0;
+    }
+    long long result = 0;
+    long long place = 1;
+    while (n != 0) {
+        long long x = n % 3;
+        result += x * place;
+        place *= 10;
+        n /= 3;
+    }
+    return result;
+}
+
+long long apply_operations2(vector<long long>& nums, string ops) {
+    long long res = nums[0];
+    for (int i = 1; i < nums.size(); i++) {
+        if (ops[i - 1] == '+') {
+            res += nums[i];
+        } else if (ops[i - 1] == '*') {
+            res *= nums[i];
+        } else {
+            string temp = to_string(res) + to_string(nums[i]);
+            res = stoll(temp);
+        }
+    }
+    return res;
+}
+
+long long combinations2(long long k, vector<long long>& s) {
+    for (int i = 0; i < pow(3, s.size() - 1); i++) {
+        string ops = "";
+        long long comb = base3(i);
+        for (int j = 0; j < s.size() - 1; j++) {
+            long long curr = comb % 10; 
+            if (curr == 0) {
+                ops.push_back('+');
+            } else if (curr == 1) {
+                ops.push_back('*');
+            } else {
+                ops.push_back('|');
+            }
+            comb /= 10; 
+        }
+        if (apply_operations2(s, ops) == k) {
+            return k;
+        }
+    }
+    return 0;
+}
+
+long long part2(map<long long, vector<long long>>& m) {
+    long long s = 0;
+    for (auto& p: m) {
+        s += combinations2(p.first, p.second);
     }
     return s;
 }
@@ -88,6 +148,7 @@ int main() {
     }
 
     cout << "Part 1: " << part1(m) << endl;
+    cout << "Part 2: " << part2(m) << endl;
 
     return 0;
 }
