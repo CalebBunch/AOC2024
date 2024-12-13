@@ -30,23 +30,12 @@ long long part1(vector<vector<pair<int, int>>>& a) {
         long long yc2 = v[1].second;
         long long targetx = v[2].first;  
         long long targety = v[2].second;
-        if (xc1 == yc1 && xc2 == yc2 && targetx != targety) {
-            // parallel;
-            continue;
-        }
-        if (xc1 == yc1 && xc2 == yc2 && targetx == targety) {
-            // same line
-            long long b_press = targetx / xc2;
-            if (b_press <= 100) {
-                s += b_press;
-            }
-        } else {           
-            long long a_press = (targety * xc2 - targetx * yc2) / (yc1 * xc2 - yc2 * xc1);
-            long long b_press = (targetx - a_press * xc1) / xc2;
+         
+        long long a_press = (targety * xc2 - targetx * yc2) / (yc1 * xc2 - yc2 * xc1);
+        long long b_press = (targetx - a_press * xc1) / xc2;
         
-            if (a_press <= 100 && b_press <= 100 && (a_press * xc1 + b_press * xc2 == targetx) && (a_press * yc1 + b_press * yc2 == targety)) {
-                s += (3ll * a_press + b_press);
-            }
+        if (a_press <= 100 && b_press <= 100 && (a_press * xc1 + b_press * xc2 == targetx) && (a_press * yc1 + b_press * yc2 == targety)) {
+            s += (3ll * a_press + b_press);
         }
     }
     return s;
@@ -61,23 +50,12 @@ long long part2(vector<vector<pair<int, int>>>& a) {
         long long yc2 = v[1].second;
         long long targetx = v[2].first + 10000000000000;  
         long long targety = v[2].second + 10000000000000;
-        if (xc1 == yc1 && xc2 == yc2 && targetx != targety) {
-            // parallel;
-            continue;
-        }
-        if (xc1 == yc1 && xc2 == yc2 && targetx == targety) {
-            // same line
-            long long b_press = targetx / xc2;
-            if (b_press <= 100) {
-                s += b_press;
-            }
-        } else {           
-            long long a_press = (targety * xc2 - targetx * yc2) / (yc1 * xc2 - yc2 * xc1);
-            long long b_press = (targetx - a_press * xc1) / xc2;
+         
+        long long a_press = (targety * xc2 - targetx * yc2) / (yc1 * xc2 - yc2 * xc1);
+        long long b_press = (targetx - a_press * xc1) / xc2;
         
-            if ((a_press * xc1 + b_press * xc2 == targetx) && (a_press * yc1 + b_press * yc2 == targety)) {
-                s += (3ll * a_press + b_press);
-            }
+        if ((a_press * xc1 + b_press * xc2 == targetx) && (a_press * yc1 + b_press * yc2 == targety)) {
+            s += (3ll * a_press + b_press);
         }
     }
     return s;
