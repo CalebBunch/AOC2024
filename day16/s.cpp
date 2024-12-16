@@ -18,28 +18,37 @@ unordered_map<pair<int, int>, vector<pair<int, int>>, pair_hash> dirs = {
     {{0, -1}, {{0, -1}, {-1, 0}, {1, 0}}}
 };
 
-long long dijkstra(pair<int, int> start, pair<int, int> end, pair<int, int> odir, vector<vector<char>>& grid) {
+long long dijkstra(pair<int, int> start, pair<int, int> end, pair<int, int> odir, vector<vector<char>>& grid, vector<pair<int, int>>& final_path) {
     int rows = grid.size();
     int cols = grid[0].size();
 
-    priority_queue<tuple<long long, pair<int, int>, pair<int, int>>, vector<tuple<long long, pair<int, int>, pair<int, int>>>, greater<>> pq;
+    priority_queue<tuple<long long, pair<int, int>, pair<int, int>, vector<pair<int, int>>>, vector<tuple<long long, pair<int, int>, pair<int, int>, vector<pair<int, int>>>>, greater<>> pq;
 
     vector<vector<vector<long long>>> dist(rows, vector<vector<long long>>(cols, vector<long long>(4, LLONG_MAX)));
-    
-    vector<pair<int, int>> direction_list = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-    
-    dist[start.first][start.second][0] = 0;
-    pq.push({0, start, {0, 1}});
 
+    vector<pair<int, int>> direction_list = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+
+    dist[start.first][start.second][0] = 0;
+    pq.push({0, start, {0, 1}, {start}});
+
+    long long bestDist = LLONG_MAX;
     while (!pq.empty()) {
-        auto [current_dist, current, prev_dir] = pq.top();
+        auto [current_dist, current, prev_dir, path] = pq.top();
         pq.pop();
 
         int r = current.first;
         int c = current.second;
-        
-        if (current == end) {
-            return current_dist;
+
+        int i = find(direction_list.begin(), direction_list.end(), prev_dir) - direction_list.begin();
+        if (current_dist > dist[r][c][i]) {
+            continue;
+        }
+
+        if (current == end && current_dist <= bestDist) {
+            for (auto p : path) {
+                final_path.push_back(p);
+            }
+            bestDist = current_dist;
         }
 
         for (auto dir : dirs[prev_dir]) {
@@ -51,19 +60,21 @@ long long dijkstra(pair<int, int> start, pair<int, int> end, pair<int, int> odir
             }
 
             int dir_index = find(direction_list.begin(), direction_list.end(), dir) - direction_list.begin();
-            long long new_dist = dir == prev_dir ? current_dist + 1 : current_dist + 1001;
+            long long new_dist = (dir == prev_dir) ? current_dist + 1 : current_dist + 1001;
 
-            if (new_dist < dist[nr][nc][dir_index]) {
+            if (new_dist <= dist[nr][nc][dir_index]) {
                 dist[nr][nc][dir_index] = new_dist;
-                pq.push({new_dist, {nr, nc}, dir});
+                vector<pair<int, int>> new_path = path;
+                new_path.push_back({nr, nc});
+                pq.push({new_dist, {nr, nc}, dir, new_path});
             }
         }
     }
 
-    return LLONG_MAX;
+    return bestDist;
 }
 
-long long part1(vector<vector<char>>& grid) {
+long long part1(vector<vector<char>>& grid, vector<pair<int, int>>& final_path) {
     pair<int, int> start;
     pair<int, int> end;
 
@@ -77,7 +88,7 @@ long long part1(vector<vector<char>>& grid) {
         }
     }
 
-    return dijkstra(start, end, {0, 1}, grid);
+    return dijkstra(start, end, {0, 1}, grid, final_path);
 }
 
 int main() {
@@ -98,7 +109,10 @@ int main() {
         return 1;
     }
 
-    cout << "Part 1: " << part1(grid) << endl;
+    vector<pair<int, int>> final_path;
+    cout << "Part 1: " << part1(grid, final_path) << endl;
+    unordered_set<pair<int, int>, pair_hash> path(final_path.begin(), final_path.end());
+    cout << "Part 2: " << path.size() << endl;
 
     return 0;
 }
