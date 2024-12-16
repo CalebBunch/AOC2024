@@ -30,22 +30,16 @@ void helper1(int r, int c, vector<vector<char>>& grid, vector<char> instructions
     pair<int, int> dirs[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
     while (currInstruction < instructions.size()) {
         pair<int, int> dir;
-        if (instructions[currInstruction] == '^') {
-            dir = dirs[0];
-        } else if (instructions[currInstruction] == '>') {
-            dir = dirs[1];
-        } else if (instructions[currInstruction] == 'v') {
-            dir = dirs[2];
-        } else {
-            dir = dirs[3];
+        switch (instructions[currInstruction]) {
+            case '^': dir = dirs[0]; break;
+            case '>': dir = dirs[1]; break;
+            case 'v': dir = dirs[2]; break;
+            case '<': dir = dirs[3]; break;
         }
 
         int nr = r + dir.first;
         int nc = c + dir.second;
-        if (!inBounds(nr, nc, grid.size(), grid[0].size())) {
-            currInstruction++;
-            continue;
-        }
+
         if (grid[nr][nc] == '.') {
             grid[r][c] = '.';
             r = nr;
@@ -101,6 +95,159 @@ long long part1(vector<vector<char>> grid, vector<char> instructions) {
     return s;
 }
 
+void helper2(int r, int c, vector<vector<char>>& grid, vector<char> instructions) {
+    int currInstruction = 0;
+    pair<int, int> dirs[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+    while (currInstruction < instructions.size()) {
+        pair<int, int> dir;
+        switch (instructions[currInstruction]) {
+            case '^': dir = dirs[0]; break;
+            case '>': dir = dirs[1]; break;
+            case 'v': dir = dirs[2]; break;
+            case '<': dir = dirs[3]; break;
+        }
+
+        int nr = r + dir.first;
+        int nc = c + dir.second;
+
+        if (grid[nr][nc] == '.') {
+            grid[r][c] = '.';
+            r = nr;
+            c = nc;
+            grid[r][c] = '@';
+        } 
+        else if (grid[nr][nc] == '[' || grid[nr][nc] == ']') {
+            vector<pair<pair<int, int>, char>> move;
+            queue<pair<int, int>> q;
+            set<pair<int, int>> seen; 
+
+            q.push(make_pair(nr, nc));
+            move.push_back(make_pair(make_pair(nr, nc), grid[nr][nc]));
+            seen.insert(make_pair(nr, nc));
+
+            if (grid[nr][nc] == '[') {
+                q.push(make_pair(nr, nc + 1));
+                move.push_back(make_pair(make_pair(nr, nc + 1), grid[nr][nc + 1]));
+                seen.insert(make_pair(nr, nc + 1));
+            } 
+            else if (grid[nr][nc] == ']') {
+                q.push(make_pair(nr, nc - 1));
+                move.push_back(make_pair(make_pair(nr, nc - 1), grid[nr][nc - 1]));
+                seen.insert(make_pair(nr, nc - 1));
+            }
+
+            while (!q.empty()) {
+                pair<int, int> curr = q.front();
+                q.pop();
+
+                int gr = curr.first + dir.first;
+                int gc = curr.second + dir.second;
+
+                if (grid[gr][gc] == '#') {
+                    break;
+                }
+
+                if (seen.find(make_pair(gr, gc)) != seen.end()) {
+                    continue;
+                }
+
+                if (grid[gr][gc] == '[' || grid[gr][gc] == ']') {
+                    q.push(make_pair(gr, gc));
+                    seen.insert(make_pair(gr, gc));
+                    move.push_back(make_pair(make_pair(gr, gc), grid[gr][gc]));
+
+                    if (grid[gr][gc] == '[') {
+                        if (seen.find(make_pair(gr, gc + 1)) == seen.end()) {
+                            q.push(make_pair(gr, gc + 1));
+                            seen.insert(make_pair(gr, gc + 1));
+                            move.push_back(make_pair(make_pair(gr, gc + 1), grid[gr][gc + 1]));
+                        }
+                    } 
+                    else if (grid[gr][gc] == ']') {
+                        if (seen.find(make_pair(gr, gc - 1)) == seen.end()) {
+                            q.push(make_pair(gr, gc - 1));
+                            seen.insert(make_pair(gr, gc - 1));
+                            move.push_back(make_pair(make_pair(gr, gc - 1), grid[gr][gc - 1]));
+                        }
+                    }
+                }
+            }
+
+            bool canMove = true;
+            for (auto p : move) {
+                if (grid[p.first.first + dir.first][p.first.second + dir.second] == '#') {
+                    canMove = false;
+                    break;
+                }
+            }
+            if (canMove) {
+                for (auto p : move) {
+                    grid[p.first.first][p.first.second] = '.';
+                }
+                for (auto p : move) {
+                    grid[p.first.first + dir.first][p.first.second + dir.second] = p.second;
+                }
+                grid[r][c] = '.';
+                r = nr;
+                c = nc;
+                grid[r][c] = '@';
+            } 
+        }
+
+        currInstruction++;
+    }
+}
+
+
+long long part2(vector<vector<char>> grid, vector<char> instructions) {
+    long long s = 0;
+    vector<vector<char>> ngrid;
+    for (auto v : grid) {
+        vector<char> nrow;
+        for (auto c : v) {
+            if (c == '.') {
+                nrow.push_back('.');
+                nrow.push_back('.');
+            } else if (c == 'O') {
+                nrow.push_back('[');
+                nrow.push_back(']');
+            } else if (c == '#') {
+                nrow.push_back('#');
+                nrow.push_back('#');
+            } else if (c == '@') {
+                nrow.push_back('@');
+                nrow.push_back('.');
+            }
+        }
+        ngrid.push_back(nrow);
+    }
+    
+    grid = ngrid;
+
+    bool found = false;
+    for (int i = 0; i < grid.size(); i++) {
+        for (int j = 0; j < grid[i].size(); j++) {
+            if (grid[i][j] == '@') {
+                helper2(i, j, grid, instructions);
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
+    }
+   
+    for (int i = 0; i < grid.size(); i++) {
+        for (int j = 0; j < grid[0].size(); j++) {
+            if (grid[i][j] == '[') {
+                s += (100 * i + j);
+            }
+        }
+    }
+    return s;
+}
+
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
@@ -134,6 +281,7 @@ int main() {
     }
 
     cout << "Part 1: " << part1(grid, instructions) << endl;
+    cout << "Part 2: " << part2(grid, instructions) << endl;
 
     return 0;
 }
