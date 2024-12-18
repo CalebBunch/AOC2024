@@ -66,13 +66,45 @@ int dijkstra(pair<int, int> start, pair<int, int> end, vector<vector<char>> grid
 }
 
 int part1(vector<pair<int, int>> blocks) {
+    pair<int, int> start = {0, 0};
+    pair<int, int> end = {70, 70};
     vector<vector<char>> grid(71, vector<char>(71, '.')); 
     for (int i = 0; i < 1024; i++) {
         pair<int, int> b = blocks[i];
         grid[b.second][b.first] = '#';
     }
     
-    return dijkstra({0, 0}, {70, 70}, grid);
+    return dijkstra(start, end, grid);
+}
+
+pair<int, int> part2(vector<pair<int, int>> blocks) {
+    pair<int, int> start = {0, 0};
+    pair<int, int> end = {70, 70};
+    vector<vector<vector<char>>> grid_options;
+    vector<vector<char>> prev(71, vector<char>(71, '.'));
+    
+    for (auto b : blocks) {
+        vector<vector<char>> curr = prev;
+        curr[b.second][b.first] = '#';
+        grid_options.push_back(curr);
+        prev = curr;
+    }
+
+    int low = 1;
+    int high = grid_options.size() - 1;
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        int r1 = dijkstra(start, end, grid_options[mid - 1]);
+        int r2 = dijkstra(start, end, grid_options[mid]);
+        if (r1 != -1 && r2 == -1) {
+            return {blocks[mid]};
+        } else if (r1 == -1 && r2 == -1) {
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return {-1, -1};
 }
 
 int main() {
@@ -94,6 +126,7 @@ int main() {
     }
 
     cout << "Part 1: " << part1(blocks) << endl;
-
+    pair<int, int> res2 = part2(blocks);
+    cout << "Part 2: " << res2.first << "," << res2.second << endl;
     return 0;
 }
