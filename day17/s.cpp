@@ -21,7 +21,12 @@ vector<string> splitString(string str, char splitter) {
     return result;
 }
 
-vector<int> part1(vector<int> instructions, long long regA, long long regB, long long regC) {
+int mod(int a, int b) {
+    int result = a % b;
+    return result < 0 ? result + b : result;
+}
+
+vector<int> simulate(vector<int> instructions, long long regA, long long regB, long long regC) {
     vector<int> res;
     int ptr = 0;
     while (ptr < instructions.size()) {
@@ -44,7 +49,7 @@ vector<int> part1(vector<int> instructions, long long regA, long long regB, long
         } else if (opcode == 1) {
             regB ^= operand; 
         } else if (opcode == 2) {
-            regB = operand % 8;
+            regB = mod(operand, 8);
         } else if (opcode == 3) {
             if (regA != 0) {
                 ptr = operand;
@@ -53,7 +58,7 @@ vector<int> part1(vector<int> instructions, long long regA, long long regB, long
         } else if (opcode == 4) {
             regB ^= regC;
         } else if (opcode == 5) {
-            res.push_back(operand % 8);
+            res.push_back(mod(operand, 8));
         } else if (opcode == 6) {
             regB = regA / pow(2, operand);
         } else if (opcode == 7) {
@@ -66,6 +71,26 @@ vector<int> part1(vector<int> instructions, long long regA, long long regB, long
     }
 
     return res;
+}
+
+vector<int> part1(vector<int> instructions, long long regA, long long regB, long long regC) {
+    return simulate(instructions, regA, regB, regC);
+}
+
+unsigned long long part2(vector<int> instructions, long long regB, long long regC) {
+    vector<int> expected = {2, 4, 1, 2, 7, 5, 4, 3, 0, 3, 1, 7, 5, 5, 3, 0};
+    unsigned long long pattern = std::bitset<64>("1000001010011110000001111").to_ullong();
+    unsigned long long limit = 200000000000000;
+    unsigned long long step = 1ULL << 25; 
+    unsigned long long curr = pattern;
+    while (curr <= limit) {
+        vector<int> res = simulate(instructions, curr, regB, regC);
+        if (res == expected) {
+            return curr;
+        }
+        curr += step;
+    }
+    return -1;
 }
 
 int main() {
@@ -106,7 +131,7 @@ int main() {
         return 1;
     }
 
-    cout << "Part 1: " << endl;
+    cout << "Part 1: ";
     vector<int> result = part1(instructions, a, b, c);
     for (auto it = result.begin(); it != result.end(); ++it) {
         cout << *it;
@@ -114,7 +139,7 @@ int main() {
             cout << ",";
         }
     }
-    cout << endl;
+    cout << endl << "Part 2: " << part2(instructions, b, c) << endl;
 
     return 0;
 }
