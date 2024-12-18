@@ -79,7 +79,7 @@ vector<int> part1(vector<int> instructions, long long regA, long long regB, long
 
 unsigned long long part2(vector<int> instructions, long long regB, long long regC) {
     vector<int> expected = {2, 4, 1, 2, 7, 5, 4, 3, 0, 3, 1, 7, 5, 5, 3, 0};
-    unsigned long long pattern = std::bitset<64>("1000001010011110000001111").to_ullong();
+    unsigned long long pattern = bitset<64>("1000001010011110000001111").to_ullong();
     unsigned long long limit = 200000000000000;
     unsigned long long step = 1ULL << 25; 
     unsigned long long curr = pattern;
