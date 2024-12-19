@@ -27,7 +27,7 @@ bool helper1(string design, vector<string> patterns) {
     m[0] = true;
     for (int i = 0; i < n; i++) {
         if (m[i]) {
-            for (string p : patterns) {
+            for (auto p : patterns) {
                 if (i + p.size() <= n && design.substr(i, p.size()) == p) {
                     m[i + p.size()] = true;
                 }
@@ -43,6 +43,30 @@ int part1(vector<string> patterns, vector<string> designs) {
         if (helper1(d, patterns)) {
             s++;
         }
+    }
+    return s;
+}
+
+long long helper2(string design, vector<string> patterns) {
+    int n = design.size();
+    vector<long long> m(n + 1, 0);
+    m[0] = 1;
+    for (int i = 0; i < n; i++) {
+        if (m[i] > 0) {
+            for (auto p : patterns) {
+                if (i + p.size() <= n && design.substr(i, p.size()) == p) {
+                    m[i + p.size()] += m[i];
+                }
+            }
+        }
+    }
+    return m[n];
+}
+
+long long part2(vector<string> patterns, vector<string> designs) {
+    long long s = 0;
+    for (auto d : designs) {
+        s += helper2(d, patterns);
     }
     return s;
 }
@@ -78,6 +102,7 @@ int main() {
     }
 
     cout << "Part 1: " << part1(patterns, designs) << endl;
+    cout << "Part 2: " << part2(patterns, designs) << endl;
 
     return 0;
 }
