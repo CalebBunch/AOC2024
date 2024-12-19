@@ -21,52 +21,38 @@ vector<string> splitString(string str, char splitter) {
     return result;
 }
 
-bool helper1(string design, vector<string> patterns) {
-    int n = design.size();
-    vector<bool> m(n + 1, false);
-    m[0] = true;
-    for (int i = 0; i < n; i++) {
-        if (m[i]) {
-            for (auto p : patterns) {
-                if (i + p.size() <= n && design.substr(i, p.size()) == p) {
-                    m[i + p.size()] = true;
-                }
-            }
+unordered_map<string, long long> cache;
+long long helper(string design, vector<string> patterns) {
+    if (cache.find(design) != cache.end()) {
+        return cache[design];
+    }
+    if (design == "") {
+        return 1;
+    }
+    long long result = 0;
+    for (auto p : patterns) {
+        if (design.substr(0, p.size()) == p) {
+            result += helper(design.substr(p.size()), patterns);
         }
     }
-    return m[n];
+    cache[design] = result;
+    return result;
 }
 
 int part1(vector<string> patterns, vector<string> designs) {
     int s = 0;
     for (auto d : designs) {
-        if (helper1(d, patterns)) {
+        if (helper(d, patterns) > 0) {
             s++;
         }
     }
     return s;
 }
 
-long long helper2(string design, vector<string> patterns) {
-    int n = design.size();
-    vector<long long> m(n + 1, 0);
-    m[0] = 1;
-    for (int i = 0; i < n; i++) {
-        if (m[i] > 0) {
-            for (auto p : patterns) {
-                if (i + p.size() <= n && design.substr(i, p.size()) == p) {
-                    m[i + p.size()] += m[i];
-                }
-            }
-        }
-    }
-    return m[n];
-}
-
 long long part2(vector<string> patterns, vector<string> designs) {
     long long s = 0;
     for (auto d : designs) {
-        s += helper2(d, patterns);
+        s += helper(d, patterns);
     }
     return s;
 }
