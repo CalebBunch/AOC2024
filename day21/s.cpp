@@ -101,7 +101,6 @@ vector<vector<char>> directional_keypad = {{'#', '^', 'A'}, {'<', 'v', '>'}};
 unordered_map<char, pair<int, int>> numeric_keypad_table = {{'7', {0, 0}}, {'8', {0, 1}}, {'9', {0, 2}}, {'4', {1, 0}}, {'5', {1, 1}}, {'6', {1, 2}}, {'1', {2, 0}}, {'2', {2, 1}}, {'3', {2, 2}}, {'#', {3, 0}}, {'0', {3, 1}}, {'A', {3, 2}}};
 unordered_map<char, pair<int, int>> directional_keypad_table = {{'#', {0, 0}}, {'^', {0, 1}}, {'A', {0, 2}}, {'<', {1, 0}}, {'v', {1, 1}}, {'>', {1, 2}}};
 
-
 vector<char> dfs(vector<pair<int, int>> moves, vector<vector<char>> keypad) {
     vector<char> res;
     pair<int, int> dirs[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
@@ -164,26 +163,34 @@ vector<vector<char>> helper(vector<char> code, vector<vector<char>> keypad, unor
     return noptions;
 }
 
+vector<vector<char>> get_options(vector<vector<char>> codes, vector<vector<char>> keypad, unordered_map<char, pair<int, int>> keypad_table, int depth) {
+    if (depth == 0) {
+        return codes;
+    }
+
+    vector<vector<char>> all_options;
+    for (auto code : codes) {
+        vector<vector<char>> res = helper(code, keypad, keypad_table);
+        vector<vector<char>> final_options = get_options(res, keypad, keypad_table, depth - 1);
+        all_options.insert(all_options.end(), final_options.begin(), final_options.end());
+    }
+
+    return all_options;
+}
+
 long long part1(vector<vector<char>> codes) {
     long long s = 0;
     for (auto code : codes) {
-        vector<vector<char>> options;
         vector<vector<char>> res1 = helper(code, numeric_keypad, numeric_keypad_table);
-        for (auto opt1 : res1) {
-            vector<vector<char>> res2 = helper(opt1, directional_keypad, directional_keypad_table);
-            for (auto opt2 : res2) {
-                vector<vector<char>> res3 = helper(opt2, directional_keypad, directional_keypad_table);
-                for (auto opt3 : res3) {
-                    options.push_back(opt3);
-                }
-            }
-        }
-        vector<char> smallest = options[0];
-        for (auto o : options) {
+        vector<vector<char>> final_options = get_options(res1, directional_keypad, directional_keypad_table, 2);
+
+        vector<char> smallest = final_options[0];
+        for (auto o : final_options) {
             if (o.size() < smallest.size() && o.size() != 0) {
                 smallest = o;
             }
         }
+
         string str(code.begin(), code.end() - 1);
         s += (((long long) smallest.size()) * stoll(str));
     }
