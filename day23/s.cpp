@@ -49,6 +49,46 @@ int part1(unordered_map<string, unordered_set<string>> graph) {
     return s;
 }
 
+vector<string> part2(unordered_map<string, unordered_set<string>> graph) {
+    vector<pair<string, unordered_set<string>>> g;
+    for (auto [vertex, adj] : graph) {
+        g.push_back({vertex, adj});
+    }
+    int best = INT_MIN;
+    vector<string> best_res; 
+    srand(time(0));
+    int i = 1000;
+    while (i--) {
+        int random_idx = rand() % g.size();
+        vector<string> res;
+        vector<pair<string, unordered_set<string>>> cp = g;
+        pair<string, unordered_set<string>> current = cp[random_idx];
+        while (!cp.empty()) {
+            bool good = true;
+            for (auto vertex : res) {
+                if (current.second.find(vertex) == current.second.end()) {
+                    good = false;
+                    break;
+                }
+            }
+            if (good) {
+                res.push_back(current.first);
+            }
+            cp.erase(cp.begin());
+            if (!cp.empty()) {
+                current = cp[0];
+            }
+        }
+
+        if ((int) res.size() > best) {
+            best = res.size();
+            best_res = res;
+        }
+    }
+    sort(best_res.begin(), best_res.end()); 
+    return best_res;
+}
+
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
@@ -69,6 +109,15 @@ int main() {
     }
 
     cout << "Part 1: " << part1(graph) << endl;
+    vector<string> result = part2(graph);
+    cout << "Part 2: ";
+    for (int i = 0; i < result.size(); i++) {
+        if (i == result.size() - 1) {
+            cout << result[i] << endl;
+        } else {
+            cout << result[i] << ",";
+        }
+    }
 
     return 0;
 }
